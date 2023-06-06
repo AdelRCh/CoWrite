@@ -3,3 +3,4 @@ processed_data
 .python_version
 .env
 .env.yaml
+*.pyc
