@@ -4,3 +4,4 @@ processed_data
 .env
 .env.yaml
 **/*.pyc
+**/__pycache__
