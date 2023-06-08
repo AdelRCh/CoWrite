@@ -1,0 +1,17 @@
+matplotlib
+pygeohash
+pytest
+google-cloud-bigquery
+google-cloud-storage
+db-dtypes
+pyarrow
+mlflow==2.1.1
+python-dotenv
+prefect==2.8.1
+psycopg2-binary
+fastapi
+pytz
+uvicorn
+httpx
+pytest-asyncio
+protobuf==3.20.*
