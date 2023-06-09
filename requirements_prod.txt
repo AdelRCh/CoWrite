@@ -31,10 +31,8 @@ uvicorn
 httpx
 pytest-asyncio
 
-protobuf == 3.20.*
+
 happytransformer
-re
-gc
 sentencepiece
 transformers
 datasets
@@ -43,3 +41,4 @@ rouge_score
 sentence-transformers
 spacy
 fastcoref
+protobuf == 3.20.*

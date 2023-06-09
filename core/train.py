@@ -76,7 +76,7 @@ def prepare_for_summary(corrected_text, coreferences):
 #I need to refine the output here.
 def detect_bad_coref(coreferences, full_text):
     # An extremely barbaric implementation of pronouns.
-    nb_sentences = def calc_num_sentences(full_text):
+    #nb_sentences = calc_num_sentences(full_text):
     return len(re.split(r'[.!?] +', full_text))
     pronoun_list = ['I', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'mine', 'yours', 'his', 'hers', 'its', 'ours', 'theirs']
     pronoun_caps = [i.upper() for i in pronoun_list]

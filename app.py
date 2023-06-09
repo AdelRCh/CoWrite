@@ -85,7 +85,8 @@ def grammar_check():
 
     with col2:
         if st.button("Generate"):
-            url = "https://cowrite-aqprprx6eq-ew.a.run.app/grammar"
+            #cowrite-aqprprx6eq-ew.a.run.app
+            url = "http://localhost:8080/grammar"
             full_text = {"full_text": text_input}
             response_grammar = requests.get(url,full_text)
             response_grammar = response_grammar.json()
