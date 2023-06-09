@@ -2,6 +2,8 @@ import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.preprocess import process_input
+from core.paragraph import summarise, scoring, extract, new_dataframe
+from core.train import get_coref_outputs, prepare_for_summary, detect_bad_coref
 
 app = FastAPI()
 
@@ -14,39 +16,24 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
  )
 
-@app.get("/predict")
-def predict(full_text):
+@app.get("/grammar")
+def grammar(full_text):
     preprocess = process_input(full_text)
+    coreferences = get_coref_outputs(preprocess)
+    summary_prep = prepare_for_summary(preprocess, coreferences)
+    #bad_coref = detect_bad_coref(coreferences,nb_sentences=1)
+    summarised = summarise(summary_prep)
+    scores = scoring(summarised, full_text)
+    extracted = extract(scores)
+    #new_df = new_dataframe(extracted, full_text)
 
-# # http://127.0.0.1:8000/predict?pickup_datetime=2012-10-06 12:10:20&pickup_longitude=40.7614327&pickup_latitude=-73.9798156&dropoff_longitude=40.6513111&dropoff_latitude=-73.8803331&passenger_count=2
-# @app.get("/predict")
-# def predict(
-#         pickup_datetime: str,  # 2013-07-06 17:18:00
-#         pickup_longitude: float,    # -73.950655
-#         pickup_latitude: float,     # 40.783282
-#         dropoff_longitude: float,   # -73.984365
-#         dropoff_latitude: float,    # 40.769802
-#         passenger_count: int
-#     ):      # 1
-#     """
-#     Make a single course prediction.
-#     Assumes `pickup_datetime` is provided as a string by the user in "%Y-%m-%d %H:%M:%S" format
-#     Assumes `pickup_datetime` implicitly refers to the "US/Eastern" timezone (as any user in New York City would naturally write)
-#     """
-#     X_pred = pd.DataFrame(dict(
-#         pickup_datetime=[pd.Timestamp(pickup_datetime, tz='US/Eastern')],
-#         pickup_longitude=[pickup_longitude],
-#         pickup_latitude=[pickup_latitude],
-#         dropoff_longitude=[dropoff_longitude],
-#         dropoff_latitude=[dropoff_latitude],
-#         passenger_count=[passenger_count]))
-
-#     model = load_model()
-
-#     X_processed = preprocess_features(X_pred)
-#     y_pred = model.predict(X_processed)
-
-#     return {"fare_amount": float(y_pred)}
+    return {
+        "grammar check": preprocess,
+        "summary": summarised,
+        "similarities": extracted
+    }
+#for stuff in bad_corefs:
+#print(f'Bad coreference detected: please replace as many instances of **{stuff[0]}** as possible with adequate pronouns.')
 
 @app.get("/")
 def root():

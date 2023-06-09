@@ -32,3 +32,14 @@ httpx
 pytest-asyncio
 
 protobuf == 3.20.*
+happytransformer
+re
+gc
+sentencepiece
+transformers
+datasets
+evaluate
+rouge_score
+sentence-transformers
+spacy
+fastcoref
