@@ -31,4 +31,14 @@ uvicorn
 httpx
 pytest-asyncio
 
+
+happytransformer
+sentencepiece
+transformers
+datasets
+evaluate
+rouge_score
+sentence-transformers
+spacy
+fastcoref
 protobuf == 3.20.*
