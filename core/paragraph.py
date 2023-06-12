@@ -46,13 +46,13 @@ def extract(score):
 
     return new_similiarities
 
-def new_dataframe(new_similarities, full_text):
-    summary_dictonary={"sentence":full_text.split(". "), "coefs":new_similiarities}
-    df = pd.DataFrame.from_dict(summary_dictonary)
-    df = df.sort_values(by='coefs',ascending=False)
-    df.reset_index(drop=True,inplace=True)
-    df.reset_index(names='importance',inplace=True)
-    df['importance'] = df['importance'] + 1
-    df = df.set_index(keys='importance',inplace=True)
+# def new_dataframe(new_similarities, full_text):
+#     summary_dictonary={"sentence":full_text.split(". "), "coefs":new_similiarities}
+#     df = pd.DataFrame.from_dict(summary_dictonary)
+#     df = df.sort_values(by='coefs',ascending=False)
+#     df.reset_index(drop=True,inplace=True)
+#     df.reset_index(names='importance',inplace=True)
+#     df['importance'] = df['importance'] + 1
+#     df = df.set_index(keys='importance',inplace=True)
 
-    return df
+#     return df
