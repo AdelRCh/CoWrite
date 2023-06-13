@@ -96,9 +96,14 @@ def grammar_check():
             # request_grammar = requests.get(experiment_url,full_text)
 
             #experiment2 instance
-            experiment2_url = "https://cowrite-exp2-aqprprx6eq-ez.a.run.app/grammar"
+            # experiment2_url = "https://cowrite-exp2-aqprprx6eq-ez.a.run.app/grammar"
+            # full_text = {"full_text": text_input}
+            # request_grammar = requests.get(experiment2_url,full_text)
+
+            #classes instance
+            classes_url ="https://cowrite-classes-aqprprx6eq-ez.a.run.app/grammar"
             full_text = {"full_text": text_input}
-            request_grammar = requests.get(experiment2_url,full_text)
+            request_grammar = requests.get(classes_url,full_text)
 
             #run locally
             # local_url = "http://localhost:8080/grammar"
@@ -107,7 +112,7 @@ def grammar_check():
             st.write(request_grammar)
             response_grammar = request_grammar.json()
 
-            results = response_grammar["similarities"]
+            results = response_grammar["summary"]
             text_output = st.text_area("Output",value=results)
         else:
              text_output = st.text_area("Output",height=300)

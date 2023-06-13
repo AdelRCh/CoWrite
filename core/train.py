@@ -10,106 +10,132 @@ checker depending on our stylebook du jour.
 from fastcoref import spacy_component
 import spacy
 import pandas as pd
-#import re
-#import lance
+import re
+
+class CorefModel:
+
+    # Initializing model
+    def __init__(self):
+        # Loading the model and creating a pipeline
+        self.nlp = spacy.load("en_core_web_lg")
+        self.nlp.add_pipe("fastcoref")
 
 
-def get_coref_outputs(corrected_text):
-    nlp = spacy.load("en_core_web_lg")
-    nlp.add_pipe("fastcoref")
-    #Get the coreference indexes from our input
-    doc = nlp(corrected_text)
+    def get_coref_outputs(self,input_text):
+        '''
+        We want to get the coreference outputs on a paragraph-by-paragraph basis,
+        after we do the grammar correction, but before everything else.
 
-    coref_words = []
-    for index, coref in enumerate(doc._.coref_clusters):
-        coref_words.append([])
-        for word in coref:
-            coref_words[index].append(corrected_text[word[0]:word[1]])
+        Input:
+        - input_text (str)
 
-    # My function returns the coordinates and the words.
-    # We can use the coordinates to highlight text on Streamlit if needed,
-    # and we can use the words directly for other things.
-    coreferences = {
-        'nb_corefs': len(doc._.coref_clusters),
-        'word_boundaries':doc._.coref_clusters,
-        'words':coref_words
-    }
+        Output:
+        - a dictionary with the following syntax {
+                'nb_corefs': the amount of fields that have a coreference,
+                'word_boundaries': the string positions for each coreference's start/end,
+                'words': the words within said boundaries
+        }
+        '''
+        #Get the coreference indexes from our input
+        doc = self.nlp(input_text)
 
-    return coreferences
+        coref_words = []
+        for index, coref in enumerate(doc._.coref_clusters):
+            coref_words.append([])
+            for word in coref:
+                coref_words[index].append(input_text[word[0]:word[1]])
 
+        # The function returns the coordinates and the words.
+        # We can use the coordinates to highlight text on Streamlit if needed,
+        # and we can use the words directly for other things.
+        return {
+            'nb_corefs': len(doc._.coref_clusters),
+            'word_boundaries':doc._.coref_clusters,
+            'words':coref_words
+        }
 
-def prepare_for_summary(corrected_text, coreferences):
+    def prepare_for_summary(self,text,coreferences=None):
+        '''
+        The function receives a 'text' argument - our initial input.
+        Coreferences is the result of processing our input through the coreference checker.
+        We do not recommend having "None", but the function is built to account for such scenarios.
 
-    # Creating a separate variable (bad memories from C++)
-    processed_text = corrected_text
+        This function returns an edited version of our input, one that makes more sense for a summary model.
+        '''
 
-    # Initializing the list of corefs
-    nb_corefs = coreferences.get('nb_corefs',0)
-    full_coref_list = []
+        # Creating a separate variable (bad memories from C++)
+        processed_text = text
 
-    if nb_corefs == 0: return processed_text
+        # If we didn't bother running this part (NOT RECOMMENDED), this is a fallback:
+        if coreferences is None:
+            coreferences = self.get_coref_outputs(text)
 
-    # Gathering all the coreferences into a DataFrame (Start, Stop, replace that space by)
-    for coref_idx in range(nb_corefs):
+        # Initializing the list of corefs
+        nb_corefs = coreferences.get('nb_corefs',0)
+        full_coref_list = []
 
-        # Find the coreference with the biggest word length for any given coref:
-        longest_coref = sorted(coreferences['words'][coref_idx],key=len,reverse=True)[0]
+        if nb_corefs == 0: return processed_text
 
-        # Associate the locations of old words with their upcoming replacement:
-        for boundary in coreferences['word_boundaries'][coref_idx]:
-            full_coref_list.append([boundary[0],boundary[1],longest_coref])
+        # Gathering all the coreferences into a DataFrame (Start, Stop, replace that space by)
+        for coref_idx in range(nb_corefs):
 
-    # Making the dataframe and sorting by their starting spots
-    coref_df = pd.DataFrame(full_coref_list,columns=['start','stop','replacement'])
-    coref_df.sort_values(by='start',ascending=False,inplace=True)
-    coref_df.reset_index(drop=True,inplace=True)
+            # Find the coreference with the biggest word length for any given coref:
+            longest_coref = sorted(coreferences['words'][coref_idx],key=len,reverse=True)[0]
 
-    # Changing the words - going from last coreference to first.
-    # If we start with the first one, the positions get bounced all over the place.
-    # We get the string before the coreference we need to replace, put the replacement, then continue
-    for _, row in coref_df.iterrows():
-        processed_text = processed_text[:row.start] + row.replacement + processed_text[row.stop:]
+            # Associate the locations of old words with their upcoming replacement:
+            for boundary in coreferences['word_boundaries'][coref_idx]:
+                full_coref_list.append([boundary[0],boundary[1],longest_coref])
 
-    # for index, row in coref_df.iterrows():
-    #     processed_text = processed_text[:row.start] + row.replacement + processed_text[row.stop:]
+        # Making the dataframe and sorting by their starting spots
+        coref_df = pd.DataFrame(full_coref_list,columns=['start','stop','replacement'])
+        coref_df.sort_values(by='start',ascending=False,inplace=True)
+        coref_df.reset_index(drop=True,inplace=True)
 
-    # And we're home free from there
-    return processed_text
+        # Changing the words - going from last coreference to first.
+        # If we start with the first one, the positions get bounced all over the place.
+        # We get the string before the coreference we need to replace, put the replacement, then continue
+        for index, row in coref_df.iterrows():
+            processed_text = processed_text[:row.start] + row.replacement + processed_text[row.stop:]
 
-        #This function takes an output from "get_coref_output" running on a full paragraph,
-#as well as the number of sentences in a paragraph (1 by default).
+        # And we're home free from there
+        return processed_text
 
-#I need to refine the output here.
-# def detect_bad_coref(coreferences, full_text):
-#     # An extremely barbaric implementation of pronouns.
-#     #nb_sentences = calc_num_sentences(full_text):
-#     return len(re.split(r'[.!?] +', full_text))
-#     pronoun_list = ['I', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'mine', 'yours', 'his', 'hers', 'its', 'ours', 'theirs']
-#     pronoun_caps = [i.upper() for i in pronoun_list]
-#     bad_coref_log = []
+    def detect_bad_coref(self,text,coreferences=None):
+        '''
+        This function takes the output from "get_coref_output" running on a full paragraph (coreferences),
+        as well as the summarized version of the text.
+        It will return tuples of coreferences that have too much repetition to them or that lack pronoun usage,
+        as well as how many references we are making to it.
 
-#     nb_corefs = coreferences.get('nb_corefs',0)
-#     for coref_idx in range(nb_corefs):
-#         longest_coref = sorted(coreferences['words'][coref_idx],key=len,reverse=True)[0]
-#         coref_list = [i.upper() for i in coreferences['words'][coref_idx]]
-#         count_pronouns = len([i for i in coref_list if i in pronoun_caps])
+        Note: coreferences can be left empty, but we do not recommend that. Only do that if you know what you're doing.
+        '''
 
-#         factor = (len(coref_list) - count_pronouns + 2)
-#         if factor <= 0: factor = 1
-#         score = nb_sentences / factor
+        if coreferences is None:
+            coreferences = self.get_coref_outputs(text)
+        # An extremely barbaric implementation of pronouns.
+        pronoun_list = ['I', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'mine', 'yours', 'his', 'hers', 'its', 'ours', 'theirs']
+        pronoun_caps = [i.upper() for i in pronoun_list]
+        bad_coref_log = []
 
-#         #We need to refine the threshold. For now, must send the notebook as is.
-#         threshold = 1
+        nb_sentences = len(re.split(r'[.!?] +', text))
 
-#         #If we have less than 1 pronoun in a situation where we have over two sentences,
-#         #or we refer to the topic too much, we need to make a callout.
+        nb_corefs = coreferences.get('nb_corefs',0)
+        for coref_idx in range(nb_corefs):
+            longest_coref = sorted(coreferences['words'][coref_idx],key=len,reverse=True)[0]
+            coref_list = [i.upper() for i in coreferences['words'][coref_idx]]
+            count_pronouns = len([i for i in coref_list if i in pronoun_caps])
 
-#         if score <= threshold:
-#             bad_coref_log.append((longest_coref,coref_idx+1))
+            factor = (len(coref_list) - count_pronouns + 2)
+            if factor <= 0: factor = 1
+            score = nb_sentences / factor
 
-#     return bad_coref_log
+            #We need to refine the threshold. For now, must send the notebook as is.
+            threshold = 1
 
-if __name__ == "__main__":
-    text = "It is a long esetablished facct that a readar will be distracted by the readable contont of a page when lookng at its layout.The point of usin Lorem Ipsum is that it has a more-or-less normale distribution of letters, as opposed to using 'Content here, content here', making it look like readable English."
-    corefs = get_coref_outputs(text)
-    print(prepare_for_summary(text, corefs))
+            #If we have less than 1 pronoun in a situation where we have over two sentences,
+            #or we refer to the topic too much, we need to make a callout.
+
+            if score <= threshold:
+                bad_coref_log.append((longest_coref,len(coref_list)))
+
+        return bad_coref_log
