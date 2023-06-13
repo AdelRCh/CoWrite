@@ -7,7 +7,7 @@ We will have our preprocessing routines grouped here for ease of use.
 - Summarizer: initializing the model, loading the data, and training it further
 '''
 import re
-import gc
+#import gc
 from happytransformer import HappyTextToText
 from happytransformer import TTSettings
 
@@ -48,3 +48,8 @@ def process_input(full_text):
         corrected_paragraphs.append(result)
 
     return '\n'.join(corrected_paragraphs)
+
+if __name__ == "__main__":
+    text = "It is a long esetablished facct that a readar will be distracted by the readable contont of a page when lookng at its layout.The point of usin Lorem Ipsum is that it has a more-or-less normale distribution of letters, as opposed to using 'Content here, content here', making it look like readable English."
+    summary = process_input(text)
+    print(summary)

@@ -10,7 +10,7 @@ different features.
 '''
 from sentence_transformers import SentenceTransformer, util
 from transformers import AutoTokenizer, PegasusForConditionalGeneration
-import pandas as pd
+#import pandas as pd
 
 def summarise(full_text):
 
@@ -56,3 +56,9 @@ def extract(score):
 #     df = df.set_index(keys='importance',inplace=True)
 
 #     return df
+
+if __name__ == "__main__":
+    summary_text = "It is a long esetablished facct that a readar will"
+    text = "It is a long esetablished facct that a readar will be distracted by the readable contont of a page when lookng at its layout.The point of usin Lorem Ipsum is that it has a more-or-less normale distribution of letters, as opposed to using 'Content here, content here', making it look like readable English."
+    summary = scoring(summary_text,text)
+    print(extract(summary))
