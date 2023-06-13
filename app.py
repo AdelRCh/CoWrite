@@ -85,13 +85,29 @@ def grammar_check():
 
     with col2:
         if st.button("Generate"):
-            #cowrite-aqprprx6eq-ew.a.run.app
+            #first instance
             # url = "https://cowrite-aqprprx6eq-ey.a.run.app/grammar"
-            experiment_url = "https://cowrite-aqprprx6eq-uc.a.run.app"
+            #full_text = {"full_text": text_input}
+            #request_grammar = requests.get(url,full_text)
+
+            #experiment instance
+            # experiment_url = "https://cowrite-aqprprx6eq-uc.a.run.app/grammar"
+            # full_text = {"full_text": text_input}
+            # request_grammar = requests.get(experiment_url,full_text)
+
+            #experiment2 instance
+            experiment2_url = "https://cowrite-exp2-aqprprx6eq-ez.a.run.app/grammar"
             full_text = {"full_text": text_input}
-            response_grammar = requests.get(experiment_url,full_text)
-            response_grammar = response_grammar.json()
-            results = response_grammar["grammar check"]
+            request_grammar = requests.get(experiment2_url,full_text)
+
+            #run locally
+            # local_url = "http://localhost:8080/grammar"
+            # full_text = {"full_text": text_input}
+            # request_grammar = requests.get(local_url,full_text)
+            st.write(request_grammar)
+            response_grammar = request_grammar.json()
+
+            results = response_grammar["similarities"]
             text_output = st.text_area("Output",value=results)
         else:
              text_output = st.text_area("Output",height=300)

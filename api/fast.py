@@ -1,11 +1,11 @@
-import pandas as pd
+#import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.preprocess import process_input
 from core.paragraph import summarise, scoring, extract
 from core.train import get_coref_outputs, prepare_for_summary
-import spacy
-# from core.paragraph import summarise, scoring, extract, new_dataframe
+#import spacy
+#from core.paragraph import summarise, scoring, extract, new_dataframe
 app = FastAPI()
 
 

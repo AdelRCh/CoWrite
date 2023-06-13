@@ -10,15 +10,15 @@ checker depending on our stylebook du jour.
 from fastcoref import spacy_component
 import spacy
 import pandas as pd
-import re
+#import re
 #import lance
 
 
-def get_coref_outputs(corrected_text, model):
+def get_coref_outputs(corrected_text):
     nlp = spacy.load("en_core_web_lg")
-    nlp_model = nlp.add_pipe("fastcoref")
+    nlp.add_pipe("fastcoref")
     #Get the coreference indexes from our input
-    doc = model(corrected_text)
+    doc = nlp(corrected_text)
 
     coref_words = []
     for index, coref in enumerate(doc._.coref_clusters):
@@ -67,7 +67,7 @@ def prepare_for_summary(corrected_text, coreferences):
     # Changing the words - going from last coreference to first.
     # If we start with the first one, the positions get bounced all over the place.
     # We get the string before the coreference we need to replace, put the replacement, then continue
-    for row in coref_df.iterrows():
+    for _, row in coref_df.iterrows():
         processed_text = processed_text[:row.start] + row.replacement + processed_text[row.stop:]
 
     # for index, row in coref_df.iterrows():
@@ -109,8 +109,7 @@ def prepare_for_summary(corrected_text, coreferences):
 
 #     return bad_coref_log
 
-# if __name__ == "__main__":
-#     nlp = spacy.load("en_core_web_lg")
-#     nlp_model = nlp.add_pipe("fastcoref")
-#     corefs = get_coref_outputs({"text": "this is a sentence, hes a bad box"}, nlp_model)
-#     print(corefs)
+if __name__ == "__main__":
+    text = "It is a long esetablished facct that a readar will be distracted by the readable contont of a page when lookng at its layout.The point of usin Lorem Ipsum is that it has a more-or-less normale distribution of letters, as opposed to using 'Content here, content here', making it look like readable English."
+    corefs = get_coref_outputs(text)
+    print(prepare_for_summary(text, corefs))
