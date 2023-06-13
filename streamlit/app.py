@@ -1,12 +1,9 @@
 import streamlit  as st
-from txtai.pipeline import Summary
 import streamlit.components.v1 as components
+import requests
 st.set_page_config(layout='wide')
 
-
 #Title
-
-
 
 
 # choice = st.sidebar.selectbox("Select Your Choice",  ['Grammar Check','Coreference','Paragraph reordering'])
@@ -46,7 +43,7 @@ st.set_page_config(layout='wide')
 
 title = st.sidebar.markdown("<h1 style='text-align: center; color: #6F2694; font-size: 46px;'>CoWrite</h1>", unsafe_allow_html=True)
 
-selected_option = st.sidebar.selectbox("Select an option", ["Grammar Check", "Coreference", "Paragraph Reorder"])
+selected_option = st.sidebar.selectbox("Select an option", ["Grammar Check", "Coreference checj", "Paragraph Reordering Recommender"])
 
 #set page color
 
@@ -77,8 +74,6 @@ def grammar_check():
             }
         </style>
 """
-
-
         components.html("",width=40, height=27)
 
         text_input = st.text_area("Input",height=300)
@@ -164,10 +159,6 @@ elif selected_option == "Paragraph Reorder":
 
 
 url = 'https://taxifare.lewagon.ai/predict'
-
-if url == 'https://taxifare.lewagon.ai/predict':
-
-    st.markdown('Maybe you want to use your own API for the prediction, not the one provided by Le Wagon...')
 
 # '''
 
