@@ -3,6 +3,7 @@ import streamlit  as st
 import streamlit.components.v1 as components
 st.set_page_config(layout='wide')
 import requests
+import ast
 
 #Title
 
@@ -48,8 +49,8 @@ title = st.sidebar.markdown("<h1 style='text-align: center; color: #6F2694; font
 
 st.sidebar.text('Please choose what we want to do:')
 selected_grammar = st.sidebar.checkbox("Check the grammar")
-selected_show_corefs = st.sidebar.checkbox("Show coreferences")
-selected_bad_coref = st.sidebar.checkbox("Spot bad coreferences")
+selected_show_corefs = st.sidebar.checkbox("Show coreferences",disabled=True)
+selected_bad_coref = st.sidebar.checkbox("Spot bad coreferences",disabled=True)
 selected_summary = st.sidebar.checkbox("Receive a summary")
 selected_reorder = st.sidebar.checkbox("Paragraph Reorder")
 
@@ -95,7 +96,7 @@ with col1:
         last_working_version_url ="https://cowrite-classes-aqprprx6eq-ez.a.run.app/grammar"
 
         # Please add the most recent version here.
-        new_version_url = None
+        new_version_url = "https://cowrite-aqprprx6eq-uc.a.run.app/grammar"
 
         # If we don't have a version, or if we revert it to None, we can use the last working version instead.
         url = last_working_version_url if new_version_url is None else new_version_url
@@ -139,7 +140,7 @@ with col1:
                 my_df = full_request.get('similarities',False)
                 if my_df:
                     col_scores.markdown('*Furthermore, we suggest reordering the sentences as follows:*')
-                    col_scores.dataframe(data=my_df) #Streamlit's built-in df processor
+                    col_scores.dataframe(data=ast.literal_eval(my_df)) #Streamlit's built-in df processor
                     col_scores.markdown('These recommendations fit a news-style approach and can be ignored otherwise.')
 
             #first instance
