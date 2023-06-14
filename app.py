@@ -101,7 +101,8 @@ def grammar_check():
             # request_grammar = requests.get(experiment2_url,full_text)
 
             #classes instance
-            classes_url ="https://cowrite-classes-aqprprx6eq-ez.a.run.app/grammar"
+            classes_url ="https://cowrite-aqprprx6eq-uc.a.run.app/grammar"
+            # classes_url ="https://cowrite-classes-aqprprx6eq-ez.a.run.app/grammar"
             full_text = {"full_text": text_input}
             request_grammar = requests.get(classes_url,full_text)
 
@@ -217,3 +218,5 @@ elif selected_option == "Paragraph Reorder":
 
 # ## Finally, we can display the prediction to the user
 # '''
+
+#Marie Salomea Skłodowska–Curie, born Maria Salomea Skłodowska,  (7 November 1867 – 4 July 1934) was a Polish and naturalized-French physicist and chemist who conducted pioneering research on radioactivity. She was the first woman to win a Nobel Prize, the first person to win a Nobel Prize twice, and the only person to win a Nobel Prize in two scientific fields. Her husband, Pierre Curie, was a co-winner of her first Nobel Prize, making them the first-ever married couple to win the Nobel Prize and launching the Curie family legacy of five Nobel Prizes. She was, in 1906, the first woman to become a professor at the University of Paris.

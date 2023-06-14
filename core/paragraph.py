@@ -59,7 +59,7 @@ class ParagraphReorderer:
         if (self.sum_env == 'hf'):
             return self.hf_api.xsum_summarize(my_text)
 
-        tokenized_input = self.sum_tokenizer(my_text, truncation=False, padding="longest", return_tensors="pt").to(self.device)
+        tokenized_input = self.sum_tokenizer(my_text, truncation=True, return_tensors="pt").to(self.device)
         tokenized_output = self.sum_model.generate(**tokenized_input)
         my_summary = self.sum_tokenizer.batch_decode(tokenized_output, skip_special_tokens=True)
 
@@ -82,7 +82,7 @@ class ParagraphReorderer:
 
         # return summary
 
-    def score_sentences(self, input_text, summary=None):
+    def score_sentences(self, input_text,summary=None):
         # This step will be skipped if we already have a ready-made summary sentence of our own.
         if summary is None:
             summary = self.summarize(input_text)
