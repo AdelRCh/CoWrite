@@ -48,6 +48,7 @@ title = st.sidebar.markdown("<h1 style='text-align: center; color: #6F2694; font
 
 st.sidebar.text('Please choose what we want to do:')
 selected_grammar = st.sidebar.checkbox("Check the grammar")
+selected_show_corefs = st.sidebar.checkbox("Show coreferences")
 selected_bad_coref = st.sidebar.checkbox("Spot bad coreferences")
 selected_summary = st.sidebar.checkbox("Receive a summary")
 selected_reorder = st.sidebar.checkbox("Paragraph Reorder")
@@ -67,8 +68,10 @@ st.markdown("""
 st.subheader("Please enter your text on the left-side panel, then click 'Generate'")
 col1, col2 = st.columns(2)
 col_summary = st.container()
-col_bad_corefs = st.container()
 col_scores = st.container()
+col_coreferences = st.container()
+col_bad_corefs = st.container()
+
 with col1:
     custom_css = """
     <style>
@@ -109,11 +112,18 @@ with col1:
             if selected_grammar:
                 output_text = output_text + full_request.get("grammar check","Something has gone wrong with the grammar check.")
 
+            if selected_show_corefs:
+                # Assuming "bad_corefs" is the endpoint for coreferences (please change it if that is not the case:)
+                coreferences_text = full_request.get("coreferences",False)
+                if coreferences_text:
+                    col_coreferences.markdown(f'Coreferences (very early version): {coreferences_text}') ##We can tweak this further
+                    col_coreferences.markdown('___')
+
             if selected_bad_coref:
                 # Assuming "bad_corefs" is the endpoint for coreferences (please change it if that is not the case:)
-                coref_text = full_request.get("bad_corefs",False)
-                if coref_text:
-                    col_bad_corefs.markdown('Please note the following: '+str(coref_text)) ##We can tweak this further
+                bad_coref_text = full_request.get("bad_corefs",False)
+                if bad_coref_text:
+                    col_bad_corefs.markdown(f'Too much repetition without pronoun usage on: {bad_coref_text}') ##We can tweak this further
                     col_bad_corefs.markdown('___')
 
             if selected_summary:
@@ -228,9 +238,6 @@ with col1:
 #     coreference()
 # elif selected_option == "Paragraph Reorder":
 #     paragraph_reorder()
-
-
-
 
 
 
