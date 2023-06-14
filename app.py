@@ -40,17 +40,19 @@ import requests
 #         # input_file = st.file_uploader(" Upload your document ",type=["pdf"])
 #             st.markdown("*** YOUR OUTPUT TEXT ***")
 #             st.info( input_text )
-"""Deisgn No. 2"""
+"""Disclaimer: this is the MVP. Some features are experimental / in need of further finetuning."""
 
 # Sidebar
 
 title = st.sidebar.markdown("<h1 style='text-align: center; color: #6F2694; font-size: 46px;'>CoWrite</h1>", unsafe_allow_html=True)
 
-selected_option = st.sidebar.selectbox("Select an option", ["Grammar Check", "Coreference", "Paragraph Reorder"])
+st.sidebar.text('Please choose what we want to do:')
+selected_grammar = st.sidebar.checkbox("Check the grammar")
+selected_bad_coref = st.sidebar.checkbox("Spot bad coreferences")
+selected_summary = st.sidebar.checkbox("Receive a summary")
+selected_reorder = st.sidebar.checkbox("Paragraph Reorder")
 
 #set page color
-
-
 
 st.markdown("""
     <style>
@@ -62,29 +64,74 @@ st.markdown("""
     """,unsafe_allow_html=True)
 
 
-def grammar_check():
-    st.subheader("Grammar Check")
-    col1, col2 = st.columns(2)
+st.subheader("Please enter your text on the left-side panel, then click 'Generate'")
+col1, col2 = st.columns(2)
+col_summary = st.container()
+col_bad_corefs = st.container()
+col_scores = st.container()
+with col1:
+    custom_css = """
+    <style>
+        .transparent-button button {
+            background-color: transparent !important;
+            color: transparent !important;
+            border: none   !important;
+            outline: none !important;
+        }
+    </style>
+    """
 
-    with col1:
-        custom_css = """
-        <style>
-            .transparent-button button {
-                background-color: transparent !important;
-                color: transparent !important;
-                border: none   !important;
-                outline: none !important;
-            }
-        </style>
-"""
+    components.html("",width=40, height=27)
 
-
-        components.html("",width=40, height=27)
-
-        text_input = st.text_area("Input",height=300)
+    text_input = st.text_area("Input text:",height=300)
 
     with col2:
+
+        # experiment2_url = "https://cowrite-exp2-aqprprx6eq-ez.a.run.app/grammar"
+        # local_url = "http://localhost:8080/grammar"
+        last_working_version_url ="https://cowrite-classes-aqprprx6eq-ez.a.run.app/grammar"
+
+        # Please add the most recent version here.
+        new_version_url = None
+
+        # If we don't have a version, or if we revert it to None, we can use the last working version instead.
+        url = last_working_version_url if new_version_url is None else new_version_url
+        output_text = ''
+
         if st.button("Generate"):
+            #If we had one before, erase all of it.
+
+            full_text = {"full_text": text_input}
+            full_request = requests.get(url,full_text).json()
+            output_text = '' #Reset our output variable to fit the current purpose
+
+            #Getting the output in the text area
+            if selected_grammar:
+                output_text = output_text + full_request.get("grammar check","Something has gone wrong with the grammar check.")
+
+            if selected_bad_coref:
+                # Assuming "bad_corefs" is the endpoint for coreferences (please change it if that is not the case:)
+                coref_text = full_request.get("bad_corefs",False)
+                if coref_text:
+                    col_bad_corefs.markdown('Please note the following: '+str(coref_text)) ##We can tweak this further
+                    col_bad_corefs.markdown('___')
+
+            if selected_summary:
+                summary_text = full_request.get("summary",False)
+                if summary_text:
+                    col_summary.markdown('This summary is used to infer which sentences are the most relevant:')
+                    col_summary.markdown(f'**{summary_text}**')
+                    col_summary.markdown('We could supply our own sentence for that in a future version.')
+                    col_summary.markdown('___')
+
+            if selected_reorder and selected_summary:
+                # Assuming "similarities" is the endpoint for the scores (please change it if that is not the case:)
+                my_df = full_request.get('similarities',False)
+                if my_df:
+                    col_scores.markdown('*Furthermore, we suggest reordering the sentences as follows:*')
+                    col_scores.dataframe(data=my_df) #Streamlit's built-in df processor
+                    col_scores.markdown('These recommendations fit a news-style approach and can be ignored otherwise.')
+
             #first instance
             # url = "https://cowrite-aqprprx6eq-ey.a.run.app/grammar"
             #full_text = {"full_text": text_input}
@@ -96,99 +143,91 @@ def grammar_check():
             # request_grammar = requests.get(experiment_url,full_text)
 
             #experiment2 instance
-            # experiment2_url = "https://cowrite-exp2-aqprprx6eq-ez.a.run.app/grammar"
+
             # full_text = {"full_text": text_input}
             # request_grammar = requests.get(experiment2_url,full_text)
 
-            #classes instance
-            classes_url ="https://cowrite-classes-aqprprx6eq-ez.a.run.app/grammar"
-            full_text = {"full_text": text_input}
-            request_grammar = requests.get(classes_url,full_text)
+            # classes instance
+            # classes_url ="https://cowrite-classes-aqprprx6eq-ez.a.run.app/grammar"
+            # full_text = {"full_text": text_input}
+            # request_grammar = requests.get(classes_url,full_text)
 
             #run locally
-            # local_url = "http://localhost:8080/grammar"
+
             # full_text = {"full_text": text_input}
             # request_grammar = requests.get(local_url,full_text)
-            st.write(request_grammar)
-            response_grammar = request_grammar.json()
 
-            results = response_grammar["summary"]
-            text_output = st.text_area("Output",value=results)
-        else:
-             text_output = st.text_area("Output",height=300)
+        text_output = st.text_area("Corrected text:",value=output_text,height=300)
 
-
-
-
-def coreference():
-    st.subheader("Coreference")
-    col1, col2 = st.columns(2)
-    with col1:
-        custom_css = """
-            <style>
-                .transparent-button button {
-                    background-color: transparent !important;
-                    color: transparent !important;
-                    border: none !important;
-                    outline: none !important;
-                }
-            </style>
-"""
+# def coreference():
+#     st.subheader("Coreference")
+#     col1, col2 = st.columns(2)
+#     with col1:
+#         custom_css = """
+#             <style>
+#                 .transparent-button button {
+#                     background-color: transparent !important;
+#                     color: transparent !important;
+#                     border: none !important;
+#                     outline: none !important;
+#                 }
+#             </style>
+# """
 
 
-        components.html("",width=40, height=27)
+#         components.html("",width=40, height=27)
 
 
-        text_input = st.text_area("Input",height=100)
+#         text_input = st.text_area("Input",height=100)
 
-    with col2:
+#     with col2:
 
-        if st.button("Generate"):
-            text_output = st.text_area("Output",value=text_input)
-            # Store the result in a variable called 'result'
-        else:
-             text_output = st.text_area("Output",height=100)
-
-
-def paragraph_reorder():
-    st.subheader("Paragraph Reorder")
-    col1, col2 = st.columns(2)
-
-    with col1:
-       with col1:
-        custom_css = """
-        <style>
-            .transparent-button button {
-                background-color: transparent !important;
-                color: transparent !important;
-                border: none !important;
-                outline: none !important;
-            }
-        </style>
-"""
-
-        components.html("",width=40, height=27)
+#         if st.button("Generate"):
+#             text_output = st.text_area("Output",value=text_input)
+#             # Store the result in a variable called 'result'
+#         else:
+#              text_output = st.text_area("Output",height=100)
 
 
-        text_input = st.text_area("Input",height=100)
+# def paragraph_reorder():
+#     st.subheader("Paragraph Reorder")
+#     col1, col2 = st.columns(2)
 
-    with col2:
+#     with col1:
+#        with col1:
+#         custom_css = """
+#         <style>
+#             .transparent-button button {
+#                 background-color: transparent !important;
+#                 color: transparent !important;
+#                 border: none !important;
+#                 outline: none !important;
+#             }
+#         </style>
+# """
 
-        if st.button("Generate"):
-            text_output = st.text_area("Output",value=text_input)
-            # Store the result in a variable called 'result'
-
-        else:
-             text_output = st.text_area("Output",height=100)
+#         components.html("",width=40, height=27)
 
 
-# Main content
-if selected_option == "Grammar Check":
-    grammar_check()
-elif selected_option == "Coreference":
-    coreference()
-elif selected_option == "Paragraph Reorder":
-    paragraph_reorder()
+#         text_input = st.text_area("Input",height=100)
+
+#     with col2:
+
+#         if st.button("Generate"):
+#             text_output = st.text_area("Output",value=text_input)
+#             # Store the result in a variable called 'result'
+
+#         else:
+#              text_output = st.text_area("Output",height=100)
+
+
+# # Main content
+# if selected_option == "Grammar Check":
+#     grammar_check()
+# elif selected_option == "Coreference":
+#     coreference()
+# elif selected_option == "Paragraph Reorder":
+#     paragraph_reorder()
 
 
 
