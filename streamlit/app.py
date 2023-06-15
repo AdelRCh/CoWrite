@@ -48,11 +48,11 @@ import ast
 title = st.sidebar.markdown("<h1 style='text-align: center; color: #6F2694; font-size: 46px;'>CoWrite</h1>", unsafe_allow_html=True)
 
 st.sidebar.text('Please choose what we want to do:')
-selected_grammar = st.sidebar.checkbox("Check the grammar")
-selected_show_corefs = st.sidebar.checkbox("Show coreferences",disabled=True)
-selected_bad_coref = st.sidebar.checkbox("Spot bad coreferences",disabled=True)
-selected_summary = st.sidebar.checkbox("Receive a summary")
-selected_reorder = st.sidebar.checkbox("Paragraph Reorder")
+selected_grammar = st.sidebar.checkbox("Check the grammar",value=True)
+selected_show_corefs = False #st.sidebar.checkbox("Show coreferences",disabled=True)
+selected_bad_coref = False #st.sidebar.checkbox("Spot bad coreferences",disabled=True)
+selected_summary = st.sidebar.checkbox("Receive a summary",value=True)
+selected_reorder = st.sidebar.checkbox("Paragraph Reorder",value=True)
 
 #set page color
 
