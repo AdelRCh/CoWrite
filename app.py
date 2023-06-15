@@ -4,87 +4,11 @@ import streamlit.components.v1 as components
 st.set_page_config(layout='wide')
 import requests
 import ast
-import re
-from annotated_text import annotated_text
 
 #Title
 
-def grammar_output_fixer(new_text):
 
-    text_split = re.split("[.!?]+", new_text)
-    punc_split = re.findall("[.!?]+", new_text)
-    if text_split[-1] == '': del text_split[-1]
 
-    repeated_sentences = []
-
-    for i in range(1,len(text_split)):
-        sent_set = set(text_split[i].split())
-        prev_sent_set = set(text_split[i-1].split())
-
-        if sent_set.issubset(prev_sent_set):
-            repeated_sentences.append(i)
-
-    for k in sorted(repeated_sentences,reverse=True):
-        del text_split[k], punc_split[k]
-
-    proc_text = ''.join([text_split[i]+punc_split[i] for i in range(len(punc_split))])
-
-    return proc_text
-
-def string_diff(s1: str, s2: str) -> str:
-    d1, d2 = [], []
-    i1 = i2 = 0
-    l1 = len(s1)
-    l2 = len(s2)
-    while True:
-        if i1 >= len(s1) or i2 >= len(s2):
-            d1.extend(s1[i1:])
-            d2.extend(s2[i2:])
-            break
-        if s1[i1] != s2[i2]:
-            e1 = l1 - i1
-            e2 = l2 - i2
-            # if e1 > e2:
-            #     d1.append((s1[i1],i1))
-            #     i2 -= 1
-            # elif e1 < e2:
-            #     d2.append((s2[i2],i2))
-            #     i1 -= 1
-            # else:
-            d1.append((s1[i1],s2[i2],i1))
-            # d2.append((s2[i2],i2))
-        i1 += 1
-        i2 += 1
-    d1.append((None,None,None))
-    return d1
-
-def generate_annotation(old_text,proc_text):
-    old_text_tok = old_text.split()
-    proc_text_tok = proc_text.split()
-    differences = string_diff(old_text_tok,proc_text_tok)
-
-    diff_index = 0
-    crawled_list = []
-    crawled_text = ''
-    for i in range(len(old_text_tok)):
-
-        if i == differences[diff_index][2]:
-
-            if crawled_text != '':
-                crawled_list.append(crawled_text)
-                crawled_text = ''
-            crawled_list.append((differences[diff_index][1],differences[diff_index][0]))
-            diff_index = diff_index + 1
-
-        else:
-            crawled_text = crawled_text + old_text_tok[i]
-            if i < len(old_text_tok)-1:
-                crawled_text = crawled_text + ' '
-
-        if (i == len(old_text_tok)-1) and (crawled_text != ''):
-            crawled_list.append(crawled_text)
-
-    return crawled_list
 
 # choice = st.sidebar.selectbox("Select Your Choice",  ['Grammar Check','Coreference','Paragraph reordering'])
 
@@ -146,7 +70,6 @@ st.markdown("""
 
 st.subheader("Please enter your text on the left-side panel, then click 'Generate'")
 col1, col2 = st.columns(2)
-col_annot = st.container()
 col_summary = st.container()
 col_scores = st.container()
 col_coreferences = st.container()
@@ -190,12 +113,7 @@ with col1:
 
             #Getting the output in the text area
             if selected_grammar:
-                gram_model_output = full_request.get("grammar check","Something has gone wrong with the grammar check.")
-                output_text = output_text + grammar_output_fixer(gram_model_output)
-                with col_annot:
-                    st.markdown('**A visual overview of the corrections that we made:**')
-                    annotated_text(generate_annotation(text_input,output_text))
-                    st.markdown('___')
+                output_text = output_text + full_request.get("grammar check","Something has gone wrong with the grammar check.")
 
             if selected_show_corefs:
                 # Assuming "bad_corefs" is the endpoint for coreferences (please change it if that is not the case:)
@@ -226,7 +144,6 @@ with col1:
                     col_scores.markdown('*Furthermore, we suggest reordering the sentences as follows:*')
                     col_scores.dataframe(data=ast.literal_eval(my_df)) #Streamlit's built-in df processor
                     col_scores.markdown('These recommendations fit a news-style approach and can be ignored otherwise.')
-                    col_scores.markdown('We took your original sentences for this process in case you wished to keep them unchanged.')
 
             #first instance
             # url = "https://cowrite-aqprprx6eq-ey.a.run.app/grammar"
@@ -254,7 +171,6 @@ with col1:
             # request_grammar = requests.get(local_url,full_text)
 
         text_output = st.text_area("Corrected text:",value=output_text,height=300)
-
 
 # def coreference():
 #     st.subheader("Coreference")
