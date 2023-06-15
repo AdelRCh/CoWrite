@@ -48,13 +48,15 @@ import ast
 title = st.sidebar.markdown("<h1 style='text-align: center; color: #6F2694; font-size: 46px;'>CoWrite</h1>", unsafe_allow_html=True)
 
 st.sidebar.text('Please choose what we want to do:')
-selected_grammar = st.sidebar.checkbox("Check the grammar")
-selected_show_corefs = st.sidebar.checkbox("Show coreferences",disabled=True)
-selected_bad_coref = st.sidebar.checkbox("Spot bad coreferences",disabled=True)
-selected_summary = st.sidebar.checkbox("Receive a summary")
-selected_reorder = st.sidebar.checkbox("Paragraph Reorder")
+selected_grammar = st.sidebar.checkbox("Check the grammar",value=True)
+selected_show_corefs = False #st.sidebar.checkbox("Show coreferences",disabled=True)
+selected_bad_coref = False #st.sidebar.checkbox("Spot bad coreferences",disabled=True)
+selected_summary = st.sidebar.checkbox("Receive a summary",value=True)
+selected_reorder = st.sidebar.checkbox("Paragraph Reorder",value=True)
 
 #set page color
+
+initial_text = 'The Capybara is a animal that lives in South America. It is the bigest rodent in the world and look like a giant hamster. They lives near water and eat grass, plants, and vegetables. They lives in groups and have a calm and friendle nature. The Capybara is known for them swiming abilities and is often seeing taking a dip in the river. They have a dark brown fur and big round eyes. They are a loveable creature that bring joy and happines to those around them.'
 
 st.markdown("""
     <style>
@@ -87,7 +89,7 @@ with col1:
 
     components.html("",width=40, height=27)
 
-    text_input = st.text_area("Input text:",height=300)
+    text_input = st.text_area("Input text:",height=300,value=initial_text)
 
     with col2:
 
