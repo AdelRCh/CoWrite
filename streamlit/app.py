@@ -128,7 +128,7 @@ selected_grammar = st.sidebar.checkbox("Check the grammar",value=True)
 selected_show_corefs = False #st.sidebar.checkbox("Show coreferences",disabled=True)
 selected_bad_coref = False #st.sidebar.checkbox("Spot bad coreferences",disabled=True)
 selected_summary = st.sidebar.checkbox("Receive a summary",value=True)
-selected_reorder = st.sidebar.checkbox("Paragraph Reorder",value=True)
+selected_reorder = st.sidebar.checkbox("Reorder the sentences",value=True)
 
 #set page color
 
